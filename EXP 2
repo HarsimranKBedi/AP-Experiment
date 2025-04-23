@@ -14,3 +14,39 @@ class Solution {
     }
 }
 
+
+
+class Solution {
+    // boolean bool=false;
+    Boolean dp[];
+    public boolean canJump(int[] nums) {
+        dp=new Boolean[nums.length];
+        return helper(0,nums);
+        // return dp[nums.length-1];
+    }
+    public boolean helper(int i,int[]nums){
+        if(i==nums.length-1){
+            dp[i]=true;
+            // bool=true;
+            return true;
+        }
+        if(dp[i]!=null){
+            return dp[i];
+        }
+        int el=nums[i];
+        if(el==0){
+            dp[i]=false;
+            return false;
+        }
+        else{
+            for(int j=1;j<=el;j++){
+                if(i+j<nums.length && helper(i+j,nums)){
+                dp[i]=true;
+                return true;
+                }
+            }
+        }
+        dp[i]=false;
+        return false;
+    }
+}
