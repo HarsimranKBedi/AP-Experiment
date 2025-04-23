@@ -1,1 +1,74 @@
+class Solution {
+    public int candy(int[] ratings) {
+        int n = ratings.length;
+        int[] candies = new int[n];
+        Arrays.fill(candies, 1);
+        
+        for (int i = 1; i < n; i++) {
+            if (ratings[i] > ratings[i - 1]) {
+                candies[i] = candies[i - 1] + 1;
+            }
+        }
+        
+        for (int i = n - 2; i >= 0; i--) {
+            if (ratings[i] > ratings[i + 1]) {
+                candies[i] = Math.max(candies[i], candies[i + 1] + 1);
+            }
+        }
+        
+        int totalCandies = 0;
+        for (int candy : candies) {
+            totalCandies += candy;
+        }
+        
+        return totalCandies;
+    }
+}
+
+
+class Solution {
+    public String removeDuplicateLetters(String s) {
+        int[] count = new int[26];
+        boolean[] inStack = new boolean[26];
+        StringBuilder stack = new StringBuilder();
+
+        for (char c : s.toCharArray()) {
+            count[c - 'a']++;
+        }
+
+        for (char c : s.toCharArray()) {
+            int index = c - 'a';
+            count[index]--;
+
+            if (inStack[index]) continue;
+
+            while (stack.length() > 0 && stack.charAt(stack.length() - 1) > c && count[stack.charAt(stack.length() - 1) - 'a'] > 0) {
+                inStack[stack.charAt(stack.length() - 1) - 'a'] = false;
+                stack.deleteCharAt(stack.length() - 1);
+            }
+
+            stack.append(c);
+            inStack[index] = true;
+        }
+
+        return stack.toString();
+    }
+}
+
+
+class Solution {
+    public boolean canPlaceFlowers(int[] flowerbed, int n) {
+        int count = 0;
+        int length = flowerbed.length;
+
+        for (int i = 0; i < length; i++) {
+            if (flowerbed[i] == 0 && (i == 0 || flowerbed[i - 1] == 0) && (i == length - 1 || flowerbed[i + 1] == 0)) {
+                flowerbed[i] = 1;
+                count++;
+            }
+            if (count >= n) return true;
+        }
+        return false;
+    }
+}
 
