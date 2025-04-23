@@ -1,1 +1,113 @@
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const dotenv = require('dotenv');
+const userRoutes = require('./routes/userRoutes');
+
+dotenv.config();
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+app.use('/api/users', userRoutes);
+
+const PORT = process.env.PORT || 5000;
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => {
+        console.log('Database connected');
+        app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    })
+    .catch((err) => console.log(err));
+
+
+const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+
+const userSchema = new mongoose.Schema({
+    username: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+});
+
+userSchema.pre('save', async function(next) {
+    if (!this.isModified('password')) return next();
+    this.password = await bcrypt.hash(this.password, 10);
+    next();
+});
+
+userSchema.methods.comparePassword = async function(password) {
+    return await bcrypt.compare(password, this.password);
+};
+
+const User = mongoose.model('User', userSchema);
+
+module.exports = User;
+
+
+import React, { useState } from 'react';
+import axios from 'axios';
+
+const Login = () => {
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
+
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        try {
+            const res = await axios.post('http://localhost:5000/api/users/login', { username, password });
+            localStorage.setItem('token', res.data.token);
+            window.location.href = '/dashboard';
+        } catch (err) {
+            setErrorMessage('Invalid credentials');
+        }
+    };
+
+    return (
+        <div>
+            <h2>Login</h2>
+            <form onSubmit={handleLogin}>
+                <div>
+                    <label>Username</label>
+                    <input
+                        type="text"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        required
+                    />
+                </div>
+                <div>
+                    <label>Password</label>
+                    <input
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                    />
+                </div>
+                <button type="submit">Login</button>
+            </form>
+            {errorMessage && <p>{errorMessage}</p>}
+        </div>
+    );
+};
+
+export default Login;
+
+
+import React from 'react';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import Login from './components/Login';
+
+const App = () => {
+    return (
+        <Router>
+            <Switch>
+                <Route exact path="/" component={Login} />
+            </Switch>
+        </Router>
+    );
+};
+
+export default App;
 
